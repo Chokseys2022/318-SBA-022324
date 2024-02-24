@@ -1,56 +1,38 @@
-//myUsers.js
-
 const express = require("express");
 const router = express.Router();
-
-// Importing the `dessertPosts` data array
-const dessertPosts = require("../data/posts");
-// Importing the `error` utility function
+const dessertUsers = require("../data/dessertUsers"); // Importing dessertUsers
 const error = require("../utilities/error");
 
-// Route for handling GET and POST requests to '/posts'
 router
   .route("/")
   .get((req, res) => {
-    // Creating links for each post
-    const links = dessertPosts.map((post) => ({
-      href: `posts/${post.id}`,
-      rel: post.id.toString(),
+    const links = dessertUsers.map((user) => ({
+      // Updating links to users
+      href: `users/${user.id}`,
+      rel: user.id.toString(),
       type: "GET",
     }));
-
-    // Responding with posts data and links
-    res.json({ posts: dessertPosts, links });
+    res.json({ users: dessertUsers, links }); // Responding with users and links
   })
   .post((req, res, next) => {
-    // Validating request body for required fields
-    if (req.body.userId && req.body.dessertType && req.body.flavor) {
-      // Creating a new post object
-      const post = {
-        id: dessertPosts[dessertPosts.length - 1].id + 1,
-        userId: req.body.userId,
-        dessertType: req.body.dessertType,
-        flavor: req.body.flavor,
+    if (req.body.name && req.body.username && req.body.email) {
+      const user = {
+        id: dessertUsers[dessertUsers.length - 1].id + 1,
+        name: req.body.name,
+        username: req.body.username,
+        email: req.body.email,
       };
-
-      // Adding the new post to the dessertPosts array
-      dessertPosts.push(post);
-      // Responding with the newly created post
-      res.json(dessertPosts[dessertPosts.length - 1]);
+      dessertUsers.push(user);
+      res.json(dessertUsers[dessertUsers.length - 1]);
     } else {
-      // If request body lacks required fields, proceed to error middleware
       next(error(400, "Insufficient Data"));
     }
   });
 
-// Route for handling GET, PATCH, and DELETE requests to '/posts/:id'
 router
   .route("/:id")
   .get((req, res, next) => {
-    // Finding the post with the specified id
-    const post = dessertPosts.find((p) => p.id == req.params.id);
-
-    // Creating links for updating and deleting the post
+    const user = dessertUsers.find((u) => u.id == req.params.id);
     const links = [
       {
         href: `/${req.params.id}`,
@@ -63,38 +45,29 @@ router
         type: "DELETE",
       },
     ];
-
-    // If post exists, respond with post data and links; otherwise, proceed to next middleware
-    if (post) res.json({ post, links });
+    if (user) res.json({ user, links });
     else next();
   })
   .patch((req, res, next) => {
-    // Finding and updating the post with the specified id
-    const post = dessertPosts.find((p, i) => {
-      if (p.id == req.params.id) {
+    const user = dessertUsers.find((u, i) => {
+      if (u.id == req.params.id) {
         for (const key in req.body) {
-          dessertPosts[i][key] = req.body[key];
+          dessertUsers[i][key] = req.body[key];
         }
         return true;
       }
     });
-
-    // If post exists, respond with updated post; otherwise, proceed to next middleware
-    if (post) res.json(post);
+    if (user) res.json(user);
     else next();
   })
   .delete((req, res, next) => {
-    // Finding and deleting the post with the specified id
-    const postIndex = dessertPosts.findIndex((p) => p.id == req.params.id);
-
-    // If post exists, delete it; otherwise, proceed to next middleware
-    if (postIndex !== -1) {
-      const deletedPost = dessertPosts.splice(postIndex, 1)[0];
-      res.json(deletedPost);
+    const userIndex = dessertUsers.findIndex((u) => u.id == req.params.id);
+    if (userIndex !== -1) {
+      const deletedUser = dessertUsers.splice(userIndex, 1)[0];
+      res.json(deletedUser);
     } else {
       next();
     }
   });
 
-// Exporting the router for use in other modules
 module.exports = router;

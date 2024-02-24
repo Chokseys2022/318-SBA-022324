@@ -17,6 +17,9 @@ const app = express();
 // Setting the port number for the server to listen on.
 const port = 3000;
 
+// // Set EJS as the view engine
+// app.set('view engine', 'ejs');
+
 // Middleware to parse incoming request bodies as JSON or URL-encoded data.
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ extended: true }));
